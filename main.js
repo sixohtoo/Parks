@@ -34,24 +34,6 @@ class Spot {
         }
     }
 
-    // update_colour(colour) {
-    //     if (!(colour in this.info.coords)) {
-    //         this.info.coords[colour] = []
-    //     }
-    //     if (this.colour != 'white') {
-    //         const index = this.info.coords[colour].indexOf(this);
-    //         this.info.coords[this.colour].splice(index, 1)
-    //     }
-    //     this.colour = colour
-    //     this.info[colours][colour] = 0
-    //     if (colour in this.info.coords) {
-    //         this.info.coords[colour].push(this)
-    //     }
-    //     else {
-    //         this.info.coords[colour] = [this] // DIFFERENT FROM PYTHON IDK IF THIS IS CORRECT OR PYTHON IS
-    //     }
-    // }
-
     is_tree() {
         return this.type == 'TREE'
     }
@@ -163,12 +145,8 @@ class Grid {
         }
         this.update_info()
     }
-    //colours
-    //cols
-    //coords
-    //rows
+
     update_info() {
-        // updating coords
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.rows; j++) {
                 let spot = this.grid[i][j]
@@ -231,12 +209,9 @@ class Grid {
         let size = []
         let colour = this.info.coords
         for (let i = 0; i < this.rows; i++) {
-            // colour[i].sort(this.compare_spots)
             colour[COLOURS[i]].sort((a,b) => a.row - b.row)
             size.push(colour[COLOURS[i]])
         }
-        // size.sort(this.compare_arrays)
-
         size.sort((a,b) => a.length - b.length)
         return size
     }
@@ -244,19 +219,11 @@ class Grid {
     solve(finished, colour, size_list) {
         if (colour == size_list.length) {
             finished[0] = true
-            console.log('done')
             return
-        }
-        let current = Date.now() / 1000
-        if (current - TIME > 0.5) {
-            this.arrayToGrid()
-            TIME = current
         }
         let area = size_list[colour]
         for (let i = 0; i < area.length; i++) {
-            // this.arrayToGrid()
             let spot = area[i]
-            debugger
             if (spot.check_valid(this.grid) && !(finished[0])) {
                 spot.make_tree()
                 PLACED++
@@ -283,15 +250,11 @@ class Grid {
     }
 
     arrayToGrid() {
-        console.log('final')
         const grid = $('#wrapper div').toArray()
-        console.log(grid.length)
-        console.log(grid[0])
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.rows; j++) {
-                if (this.grid[i][j].type == 'TREE') {
+                if (this.grid[i][j].type == 'TREE' && !grid[i * this.rows + j].classList.contains('tree')) {
                     grid[i * this.rows + j].classList.add('tree')
-                    console.log(grid[i * this.rows + j].classList)
                 }
                 else {
                     if (grid[i * this.rows + j].classList.contains('tree')) {
@@ -300,6 +263,7 @@ class Grid {
                 }
             }
         }
+        addTreeImage(this.rows)
     }
 }
 
@@ -322,15 +286,27 @@ function addRows(num) {
     }
 }
 
-function changeFunc() {
+function addTreeImage(num) {
+    debugger
+    let size = 600 / num
+    $('div.tree').css('background-image', 'url("tree.png")')
+    $('div.tree').css('background-size', `${size}px ${size}px`)
+}
+
+function changeMode() {
+    STATUS += 1
+    validExample()
+}
+
+function changeGridSize() {
     const num = parseInt($('#size').find(':selected').text())
     addRows(num)
     addColourBar(num)
-    
+    STATUS += 1
+    validExample()
 }
 
 function changeColour(event) {
-    // const colour = event.target.classList[0]
     $('.selected_colour').removeClass('selected_colour')
     paint_colour = event.target.classList[0]
     event.target.classList.add('selected_colour')
@@ -364,14 +340,14 @@ function disableLeftClick(event) {
 }
 
 function checkStartSolver() {
-    console.log('check')
-    console.log($('#wrapper div.white').toArray().length)
     if (!$('#wrapper div.white').toArray().length) {
-        console.log('starting')
+        if ($('#mode').find(':selected').text() == 'Select number of trees') {
+            alert('Must select number of trees first')
+            return
+        }
         rows = parseInt($('#size').find(':selected').text())
         let info = {}
         grid = new Grid(rows, info)
-        // grid.make_grid()
         PLACED = 0
         START = Date.now() / 1000
         const size_list = grid.get_size_list()
@@ -380,14 +356,71 @@ function checkStartSolver() {
         console.log('Time taken:', Math.floor(Date.now() / 1000 - START))
         console.log('Trees placed:', PLACED)
     }
+    else {
+        alert("Must colour all white squares first")
+    }
 }
 
+function removeTrees() {
+    $('div.tree').css('background-image', 'none')
+    $('div.tree').removeClass('tree')
+}
+
+function resetGrid() {
+    $('#wrapper div').remove()
+    changeGridSize()
+}
+
+function validExample() {
+    const valid_examples = {
+        1 : [5, 6, 7, 8],
+        2 : [9, 10, 11, 12]
+    }
+    let mode = parseInt($('#mode').find(':selected').text())
+    let size = parseInt($('#size').find(':selected').text())
+    if (STATUS >= 2 && valid_examples[mode].includes(size)) {
+        $('#example').css('visibility', 'visible')
+    }
+    else {
+        $('#example').css('visibility', 'hidden')
+    }
+}
+
+function loadExample() {
+    const examples = {
+        5 : "0111100111023110333433344",
+        6 : "000122030112030000330405354445355555",
+        7 : "0011122001002300004335554433354466333333633333333",
+        8 : "0011222200002222003022224455522244566622445776774447777744447777",
+        9 : "001122222001133424001134444000034455000034455666634455677734485777774885777778885",
+        10 : "0001112222000011222233301442223331144422311114445511111555567781156666788911666678999969997777999999",
+        11 : "000112223330001111113300411111333444455563334444445663344444456673894445567778944aaa67778994aa667778999aaaaa778899aaaaa77",
+        12 : "000000001122033444011122333434011122353334066662555574444666555778444666557798888866777999aaa8887999b9baa8887bbbbbbaaaa87bbbbbbbaaa87bbbbbbbaa88"
+    }
+    let grid = $('#wrapper div').toArray()
+    size = parseInt($('#size').find(':selected').text())
+    for (let i = 0; i < examples[size].length; i++) {
+        grid[i].classList.remove('white')
+        let colour = examples[size][i]
+        if (colour == 'a') {
+            colour = 10
+        }
+        else if (colour == 'b') {
+            colour = 11
+        }
+        grid[i].classList.add(COLOURS[colour])
+    }
+}
+
+$('#example').css('visibility', 'hidden')
 PLACED = 0
 let TIME = Date.now() / 1000
 let paint_colour = 'white'
 let left_click = false
 const COLOURS = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'light_blue', 'dirty_pink', 'navy', 'ugly_yellow', 'brown', 'pink']
-size.onchange = changeFunc;
+let STATUS = 0
+size.onchange = changeGridSize;
+mode.onchange = changeMode
 colours.onclick = changeColour;
 wrapper.onclick = updateGrid;
 wrapper.onmousedown = updateLeftClick;
@@ -395,3 +428,6 @@ wrapper.onmousemove = checkUpdateGrid;
 wrapper.onmouseup = updateLeftClick;
 body.onmouseup = disableLeftClick;
 solve.onclick = checkStartSolver
+remove.onclick = removeTrees
+reset.onclick = resetGrid
+example.onclick = loadExample

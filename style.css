@@ -1,10 +1,12 @@
-/* body {
-    background-color: black;
+body {
+    background-color: white;
 }
 
-h1 {
-    color:white;
-} */
+#container {
+    width: 700px;
+    margin: auto;
+    position: relative;
+}
 
 #colours{
     display: flex;
@@ -18,7 +20,8 @@ h1 {
 #colours > div{
     width: 40px;
     height: 40px;
-    border: solid black;
+    border: solid white;
+    cursor: pointer;
 }
 
 #wrapper {
@@ -32,18 +35,22 @@ h1 {
 #wrapper > div {
     padding: 1em;
     border: 1px solid black;
+    cursor: pointer;
 }
 
-div.tree {
-    background-color: black;
-}
 
 #colours div.selected_colour {
     border-width: 3px;
+    border-color: black;
 }
 
 #colours div:not(.selected_colour) {
     border-width: 1px;
+}
+
+#colours div:not(.selected_colour):hover {
+    border-color: black;
+    border-width: 3px;
 }
 
 .white {background-color: rgb(255, 255, 255);}
@@ -59,3 +66,13 @@ div.tree {
 .ugly_yellow {background-color: rgb(100, 100, 0);}
 .brown {background-color: rgb(210, 105, 30);}
 .pink {background-color: rgb(255, 105, 180);}
+
+/* #solve {
+    border: 1px solid silver;
+    background-color: inherit;
+    width: 150px;
+    height: 50px;
+    font-size: 30px;
+    color: silver;
+
+} */
